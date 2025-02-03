@@ -95,7 +95,10 @@ const ProductsList = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch("http://localhost:5001/api/products/");
+      const API_BASE_URL =
+        process.env.REACT_APP_API_BASE_URL ||
+        "https://glowshelfe-inventory.onrender.com/api";
+      const response = await fetch(`${API_BASE_URL}/products`);
       if (!response.ok) {
         throw new Error("Failed to fetch products");
       }

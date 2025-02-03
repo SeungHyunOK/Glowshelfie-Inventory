@@ -27,9 +27,10 @@ const UpdateProduct = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await fetch(
-          `http://localhost:5001/api/products/${id}`
-        );
+        const API_BASE_URL =
+          process.env.REACT_APP_API_BASE_URL ||
+          "https://glowshelfe-inventory.onrender.com/api";
+        const response = await fetch(`${API_BASE_URL}/products/${id}`);
         if (!response.ok) throw new Error("Failed to fetch product");
 
         const data = await response.json();
