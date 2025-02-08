@@ -123,7 +123,8 @@ const ProductsList = () => {
 
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:5001/api/products/${id}`, {
+      const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+      const response = await fetch(`${API_BASE_URL}/products/${id}`, {
         method: "DELETE",
       });
 
