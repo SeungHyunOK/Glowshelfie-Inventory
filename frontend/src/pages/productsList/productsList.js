@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./productsList.css";
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
 // 문자열, 숫자, 날짜 비교 함수들 (기존 코드)
 function compareStringAsc(a, b, field) {
@@ -259,6 +260,18 @@ const ProductsList = () => {
 
   return (
     <div className="productList-container">
+      <Helmet>
+        <title>Glowshelfie Products</title>
+        <meta
+          name="description"
+          content="이 페이지는 정말 멋진 페이지입니다."
+        />
+        <meta property="og:title" content="나의 멋진 페이지" />
+        <meta
+          property="og:description"
+          content="이 페이지는 정말 멋진 페이지입니다."
+        />
+      </Helmet>
       <h1 className="title">Products List</h1>
 
       {/* 검색 & 정렬 영역 */}
