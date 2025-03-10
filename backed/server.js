@@ -21,5 +21,5 @@ app.get("/", (req, res) => {
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`서버가 ${PORT} 포트에서 실행 중입니다.`));
 
-const userRoutes = require("./routes/productRoutes");
-app.use("/api", userRoutes);
+const productRoutes = require("./routes/productRoutes");
+app.use("/api", productRoutes);
