@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Helmet } from "react-helmet-async";
 import SearchControls from "../../components/ProductsList/SearchControls";
 import ProductTable from "../../components/ProductsList/ProductTable";
@@ -20,6 +20,27 @@ const ProductsList = () => {
   const [loginPassword, setLoginPassword] = useState("");
   const itemsPerPage = 10;
 
+  // 로그인 상태 복구
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      setLoggedIn(true);
+    }
+  }, []);
+
+  // sortMode 유지
+  useEffect(() => {
+    const savedSortMode = localStorage.getItem("sortMode");
+    if (savedSortMode) {
+      setSortMode(savedSortMode);
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("sortMode", sortMode);
+  }, [sortMode]);
+
+  // 제품 데이터 fetch
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
@@ -48,6 +69,7 @@ const ProductsList = () => {
     fetchProducts();
   }, []);
 
+  // 검색 필터링 처리
   const filteredProducts = products.filter((product) => {
     if (!searchTerm) return true;
     const fieldKey = selectedField.toLowerCase();
@@ -55,35 +77,71 @@ const ProductsList = () => {
     return fieldValue.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
-  const sortByMode = (a, b) => {
-    if (!sortMode) return 0;
+  // 정렬 로직: sortMode 값에서 정렬 옵션(예:"brandAsc", "createdDesc" 등)을 추출하여 정렬
+  const sortByMode = useCallback(
+    (a, b) => {
+      if (!sortMode) return 0;
+      const isAsc = sortMode.endsWith("Asc");
+      // Determine suffix length: 'Asc' is 3 chars, 'Desc' is 4 chars
+      const suffixLength = isAsc ? 3 : sortMode.endsWith("Desc") ? 4 : 0;
+      const rawField = sortMode.slice(0, -suffixLength).toLowerCase();
+      // 매핑: 옵션의 rawField를 실제 데이터 필드명으로 변환
+      const fieldMap = {
+        created: "createdAt",
+        updated: "updatedAt",
+        expiration: "expirationDate",
+        brand: "brand",
+        category: "category",
+        product: "product",
+        location: "location",
+        quantity: "quantity",
+      };
+      const sortField = fieldMap[rawField] || rawField;
+      let fieldA = a[sortField] || "";
+      let fieldB = b[sortField] || "";
 
-    // 필드명을 소문자로 변환하여 일관성 유지
-    const fieldKey = selectedField.toLowerCase();
-
-    // 필드 값 가져오기
-    let fieldA = a[fieldKey] || "";
-    let fieldB = b[fieldKey] || "";
-
-    // 숫자 데이터 정렬 처리
-    if (!isNaN(Number(fieldA)) && !isNaN(Number(fieldB))) {
-      fieldA = Number(fieldA);
-      fieldB = Number(fieldB);
-    }
-
-    // 문자열 정렬 처리
-    if (typeof fieldA === "string" && typeof fieldB === "string") {
-      return sortMode.endsWith("Asc")
+      // 날짜 필드 처리
+      if (
+        (sortField === "createdAt" ||
+          sortField === "updatedAt" ||
+          sortField === "expirationDate") &&
+        fieldA &&
+        fieldB
+      ) {
+        fieldA = new Date(fieldA);
+        fieldB = new Date(fieldB);
+      }
+      // 숫자 비교
+      if (typeof fieldA === "number" && typeof fieldB === "number") {
+        return isAsc ? fieldA - fieldB : fieldB - fieldA;
+      }
+      if (fieldA instanceof Date && fieldB instanceof Date) {
+        return isAsc
+          ? fieldA.getTime() - fieldB.getTime()
+          : fieldB.getTime() - fieldA.getTime();
+      }
+      if (!isNaN(Number(fieldA)) && !isNaN(Number(fieldB))) {
+        fieldA = Number(fieldA);
+        fieldB = Number(fieldB);
+        return isAsc ? fieldA - fieldB : fieldB - fieldA;
+      }
+      if (typeof fieldA === "string" && typeof fieldB === "string") {
+        return isAsc
+          ? fieldA.localeCompare(fieldB)
+          : fieldB.localeCompare(fieldA);
+      }
+      fieldA = String(fieldA);
+      fieldB = String(fieldB);
+      return isAsc
         ? fieldA.localeCompare(fieldB)
         : fieldB.localeCompare(fieldA);
-    }
+    },
+    [sortMode]
+  );
 
-    // 숫자 정렬 처리
-    return sortMode.endsWith("Asc") ? fieldA - fieldB : fieldB - fieldA;
-  };
-  const sortedProducts = sortMode
-    ? [...filteredProducts].sort(sortByMode)
-    : filteredProducts;
+  const sortedProducts = useMemo(() => {
+    return sortMode ? [...filteredProducts].sort(sortByMode) : filteredProducts;
+  }, [filteredProducts, sortMode, sortByMode]);
 
   // 페이지네이션 처리
   const totalPages = Math.ceil(sortedProducts.length / itemsPerPage);
@@ -92,7 +150,7 @@ const ProductsList = () => {
     currentPage * itemsPerPage
   );
 
-  // 행 확장/축소 토글
+  // 행 확장 토글
   const toggleExpand = (id) => {
     setExpandedRows((prev) => ({
       ...prev,
@@ -100,6 +158,7 @@ const ProductsList = () => {
     }));
   };
 
+  // 로그인, 삭제, 검색 등 기타 핸들러는 기존 코드 유지
   const handleLogin = async (e) => {
     e.preventDefault();
     const API_BASE_URL =
@@ -117,7 +176,6 @@ const ProductsList = () => {
         }),
       });
       if (response.ok) {
-        // Assuming the backend returns a JSON response with a token or success flag
         const data = await response.json();
         setLoggedIn(true);
         localStorage.setItem("authToken", data.token);
@@ -130,6 +188,7 @@ const ProductsList = () => {
   };
 
   const handleLogout = () => {
+    localStorage.removeItem("authToken");
     setLoggedIn(false);
   };
 
@@ -144,13 +203,17 @@ const ProductsList = () => {
       const API_BASE_URL =
         process.env.REACT_APP_API_BASE_URL ||
         "https://glowshelfe-inventory.onrender.com/api";
+      const token = localStorage.getItem("authToken");
       const response = await fetch(`${API_BASE_URL}/products/${id}`, {
         method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
       });
       if (!response.ok) {
         throw new Error("Failed to delete product");
       }
-      // 삭제 후 제품 목록 갱신
       setProducts((prev) => prev.filter((product) => product._id !== id));
     } catch (error) {
       alert("Error: " + error.message);
@@ -176,7 +239,6 @@ const ProductsList = () => {
     }
   };
 
-  // 페이지네이션 핸들러
   const goToPrevPage = () => {
     if (currentPage > 1) setCurrentPage((prev) => prev - 1);
   };
@@ -216,8 +278,6 @@ const ProductsList = () => {
           <button onClick={handleLogout}>Logout</button>
         )}
       </div>
-
-      {/* 검색 및 정렬 컨트롤 */}
       <SearchControls
         fields={fields}
         selectedField={selectedField}
@@ -233,8 +293,6 @@ const ProductsList = () => {
         setCurrentPage={setCurrentPage}
         loggedIn={loggedIn}
       />
-
-      {/* 제품 테이블 */}
       <ProductTable
         products={currentProducts}
         loading={loading}
@@ -243,8 +301,6 @@ const ProductsList = () => {
         handleDelete={handleDelete}
         loggedIn={loggedIn}
       />
-
-      {/* 페이지네이션 */}
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}

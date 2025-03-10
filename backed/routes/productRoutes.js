@@ -39,7 +39,7 @@ router.post("/login", async (req, res) => {
   }
 });
 
-router.post("/products", async (req, res) => {
+router.post("/products", authenticateToken, async (req, res) => {
   const { brand, category, product, expirationDate, quantity, location } =
     req.body;
 
@@ -92,7 +92,7 @@ router.get("/products/:id", async (req, res) => {
   }
 });
 //제품 수정하는 코드
-router.patch("/products/:id", async (req, res) => {
+router.patch("/products/:id", authenticateToken, async (req, res) => {
   try {
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,

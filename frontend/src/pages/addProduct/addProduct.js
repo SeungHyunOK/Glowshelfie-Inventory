@@ -33,9 +33,17 @@ const AddProduct = () => {
       const API_BASE_URL =
         process.env.REACT_APP_API_BASE_URL ||
         "https://glowshelfe-inventory.onrender.com/api";
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        setMessage("인증 토큰이 없습니다. 로그인 후 다시 시도해주세요.");
+        return;
+      }
       const response = await fetch(`${API_BASE_URL}/products/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
           brand,
           category,

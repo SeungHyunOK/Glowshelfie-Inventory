@@ -30,6 +30,7 @@ const UpdateProduct = () => {
         const API_BASE_URL =
           process.env.REACT_APP_API_BASE_URL ||
           "https://glowshelfe-inventory.onrender.com/api";
+
         const response = await fetch(`${API_BASE_URL}/products/${id}`);
         if (!response.ok) throw new Error("Failed to fetch product");
 
@@ -56,11 +57,18 @@ const UpdateProduct = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(`http://localhost:5001/api/products/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(product),
-      });
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(
+        `https://glowshelfe-inventory.onrender.com/api/products/${id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(product),
+        }
+      );
 
       if (!response.ok) throw new Error("Failed to update product");
 

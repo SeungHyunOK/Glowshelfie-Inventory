@@ -9,29 +9,8 @@ const ProductTable = ({
   toggleExpand,
   handleDelete,
   loggedIn,
-  sortMode,
-  selectedField,
 }) => {
   const navigate = useNavigate();
-
-  const sortByMode = (a, b) => {
-    if (!sortMode) return 0;
-    const fieldKey = selectedField.replace(/(Asc|Desc)$/, "").toLowerCase();
-    let fieldA = a[fieldKey] || "";
-    let fieldB = b[fieldKey] || "";
-    if (!isNaN(Number(fieldA)) && !isNaN(Number(fieldB))) {
-      fieldA = Number(fieldA);
-      fieldB = Number(fieldB);
-    }
-    if (typeof fieldA === "string" && typeof fieldB === "string") {
-      return sortMode.endsWith("Asc")
-        ? fieldA.localeCompare(fieldB)
-        : fieldB.localeCompare(fieldA);
-    }
-    return sortMode.endsWith("Asc") ? fieldA - fieldB : fieldB - fieldA;
-  };
-
-  const sortedProducts = sortMode ? [...products].sort(sortByMode) : products;
 
   return (
     <table className="productList-table">
@@ -51,12 +30,11 @@ const ProductTable = ({
           <tr>
             <td colSpan="7">Getting data from the server.</td>
           </tr>
-        ) : sortedProducts.length > 0 ? (
-          sortedProducts.map((product) => {
+        ) : products.length > 0 ? (
+          products.map((product) => {
             const isExpanded = expandedRows[product._id] || false;
             return (
               <React.Fragment key={product._id}>
-                {/* 기본 정보 행 */}
                 <tr>
                   <td>{product.brand}</td>
                   <td>{product.category}</td>
@@ -91,8 +69,6 @@ const ProductTable = ({
                     </button>
                   </td>
                 </tr>
-
-                {/* 확장 영역 */}
                 {isExpanded && (
                   <tr>
                     <td colSpan="7" style={{ backgroundColor: "#fffbea" }}>
