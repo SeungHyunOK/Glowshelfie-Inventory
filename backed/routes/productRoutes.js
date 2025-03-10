@@ -17,6 +17,28 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
+router.post("/login", async (req, res) => {
+  const { username, password } = req.body;
+  if (!username || !password) {
+    return res
+      .status(400)
+      .json({ message: "사용자 이름과 비밀번호를 입력하세요." });
+  }
+  if (
+    username === process.env.LOGIN_USER &&
+    password === process.env.LOGIN_PASSWORD
+  ) {
+    const token = jwt.sign({ username: username }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+    return res.json({ token });
+  } else {
+    return res
+      .status(401)
+      .json({ message: "로그인 정보가 올바르지 않습니다." });
+  }
+});
+
 router.post("/products", async (req, res) => {
   const { brand, category, product, expirationDate, quantity, location } =
     req.body;

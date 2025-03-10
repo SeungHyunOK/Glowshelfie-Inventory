@@ -99,15 +99,31 @@ const ProductsList = () => {
     }));
   };
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (
-      loginUsername === process.env.REACT_APP_LOGIN_USER &&
-      loginPassword === process.env.REACT_APP_LOGIN_PASSWORD
-    ) {
-      setLoggedIn(true);
-    } else {
-      alert("Invalid login information.");
+    const API_BASE_URL =
+      process.env.REACT_APP_API_BASE_URL || "http://localhost:5001/api";
+    try {
+      const response = await fetch(`${API_BASE_URL}/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: loginUsername,
+          password: loginPassword,
+        }),
+      });
+      if (response.ok) {
+        // Assuming the backend returns a JSON response with a token or success flag
+        const data = await response.json();
+        setLoggedIn(true);
+        localStorage.setItem("authToken", data.token);
+      } else {
+        alert("Invalid login information.");
+      }
+    } catch (error) {
+      alert("Error during login: " + error.message);
     }
   };
 
