@@ -25,7 +25,8 @@ const ProductsList = () => {
       setLoading(true);
       try {
         const API_BASE_URL =
-          process.env.REACT_APP_API_BASE_URL || "http://localhost:5001/api";
+          process.env.REACT_APP_API_BASE_URL ||
+          "https://glowshelfe-inventory.onrender.com/api";
         const response = await fetch(`${API_BASE_URL}/products`);
         if (!response.ok) {
           throw new Error("Failed to fetch products");
@@ -102,7 +103,8 @@ const ProductsList = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     const API_BASE_URL =
-      process.env.REACT_APP_API_BASE_URL || "http://localhost:5001/api";
+      process.env.REACT_APP_API_BASE_URL ||
+      "https://glowshelfe-inventory.onrender.com/api";
     try {
       const response = await fetch(`${API_BASE_URL}/login`, {
         method: "POST",
@@ -140,7 +142,8 @@ const ProductsList = () => {
     setLoading(true);
     try {
       const API_BASE_URL =
-        process.env.REACT_APP_API_BASE_URL || "http://localhost:5001/api";
+        process.env.REACT_APP_API_BASE_URL ||
+        "https://glowshelfe-inventory.onrender.com/api";
       const response = await fetch(`${API_BASE_URL}/products/${id}`, {
         method: "DELETE",
       });
