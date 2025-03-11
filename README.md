@@ -2,6 +2,25 @@ Glowshelfie-Inventory
 
 Glowshelfie의 재고를 효율적으로 관리하기 위한 웹 애플리케이션입니다. 이 프로젝트는 프론트엔드와 백엔드로 구성되어 있으며, 사용자 친화적인 인터페이스를 제공합니다.
 
+<table>
+  <tr>
+    <td>
+      <img src="https://github.com/user-attachments/assets/1b8c21fb-69e1-4e34-aeb4-04ee1d7c6438" alt="home" width="400"/>
+    </td>
+    <td>
+      <img src="https://github.com/user-attachments/assets/900fcd43-6184-43cb-919a-d984af6afb1f" alt="login" width="400"/>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <img src="https://github.com/user-attachments/assets/73c8f797-a220-4001-830b-c0b1b050035c" alt="update" width="400"/>
+    </td>
+    <td>
+      <img src="https://github.com/user-attachments/assets/4c492c1e-2681-4e1e-a20e-cc0324d7968a" alt="add" width="400"/>
+    </td>
+  </tr>
+</table>
+
 주요 기능
 	•	재고 관리: 상품의 추가, 수정, 삭제 및 조회 기능을 제공합니다.
 	•	카테고리 분류: 상품을 다양한 카테고리로 분류하여 관리할 수 있습니다.
@@ -12,9 +31,6 @@ Glowshelfie의 재고를 효율적으로 관리하기 위한 웹 애플리케이
 	•	프론트엔드: React, Axios
 	•	백엔드: Node.js, Express
 	•	데이터베이스: Mongo cloud
-
- 설치 및 실행 방법
-	1.	레포지토리 클론
 
  설치 및 실행 방법
 	1.	레포지토리 클론
