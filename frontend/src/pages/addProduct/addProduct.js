@@ -202,7 +202,7 @@ const AddProduct = () => {
           Back
         </Link>
       </form>
-      <UploadProducts />
+      {/* <UploadProducts /> */}
 
       {message && <div className="add-product__message">{message}</div>}
     </div>
