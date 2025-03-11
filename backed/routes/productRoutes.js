@@ -17,6 +17,44 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
+const multer = require("multer");
+const xlsx = require("xlsx");
+
+const upload = multer({ dest: "uploads/" });
+
+router.post(
+  "/products/upload",
+  authenticateToken,
+  upload.single("file"),
+  async (req, res) => {
+    try {
+      // 파일이 제대로 업로드되지 않은 경우 체크
+      if (!req.file) {
+        return res
+          .status(400)
+          .json({ message: "파일이 업로드되지 않았습니다." });
+      }
+
+      // 업로드된 파일 경로를 이용해 workbook 생성
+      const workbook = xlsx.readFile(req.file.path);
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+
+      // 첫번째 시트의 데이터를 JSON 형식으로 변환 (열 이름이 키로 사용됨)
+      const data = xlsx.utils.sheet_to_json(sheet);
+
+      // 엑셀 파일의 열과 DB의 필드명이 다르면, 적절히 매핑해 주세요.
+      const savedProducts = await Product.insertMany(data);
+
+      res.status(201).json(savedProducts);
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: "업로드 중 에러 발생", error: error.message });
+    }
+  }
+);
+
 router.post("/login", async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {

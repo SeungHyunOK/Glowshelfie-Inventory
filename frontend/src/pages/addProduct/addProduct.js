@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./addProduct.css";
 import { Link } from "react-router-dom";
+import UploadProducts from "../../components/UploadProducts/UploadProducts";
 
 const AddProduct = () => {
   const [brand, setBrand] = useState("");
@@ -201,6 +202,7 @@ const AddProduct = () => {
           Back
         </Link>
       </form>
+      <UploadProducts />
 
       {message && <div className="add-product__message">{message}</div>}
     </div>
